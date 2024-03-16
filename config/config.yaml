@@ -1,0 +1,2 @@
+jwt:
+  token_ttl: 120m
