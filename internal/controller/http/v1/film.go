@@ -24,12 +24,13 @@ func newFilmRoutes(mux *http.ServeMux, filmService service.Film, middleware *Aut
 	mux.HandleFunc("/api/v1/films/create", middleware.RequireAuth(ar.createFilm))
 	mux.HandleFunc("/api/v1/films/name", middleware.RequireAuth(ar.getFilmsByName))
 	mux.HandleFunc("/api/v1/films/actor", middleware.RequireAuth(ar.getFilmsByActor))
-	mux.HandleFunc("/api/v1/films/delete", middleware.RequireAuth(ar.deleteFilm))
+	mux.HandleFunc("/api/v1/films/delete/{id}", middleware.RequireAuth(ar.deleteFilm))
 }
 
 // @Summary Create film
 // @Description Create film
 // @Tags films
+// @Param input body entity.FilmCreateInput true "information about stored film"
 // @Accept json
 // @Produce json
 // @Success 201 {object} v1.filmRoutes.createFilm.response
@@ -38,6 +39,11 @@ func newFilmRoutes(mux *http.ServeMux, filmService service.Film, middleware *Aut
 // @Security JWT
 // @Router /api/v1/films/create [post]
 func (fr *filmRoutes) createFilm(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		http.Error(w, "incorrect http method", http.StatusBadRequest)
+		return
+	}
+
 	role := req.Header.Get(userRoleHeader)
 	if role != "admin" {
 		fr.log.Error("filmRoutes CreateFilm: user does not have the necessary rights")
@@ -77,14 +83,20 @@ func (fr *filmRoutes) createFilm(w http.ResponseWriter, req *http.Request) {
 // @Summary Get films by name
 // @Description Get films by part of name
 // @Tags films
+// @Param input body entity.NamePart true "information about film name"
 // @Accept json
 // @Produce json
 // @Success 200 {object} v1.filmRoutes.getFilmsByName.response
 // @Failure 400 {string} error
 // @Failure 500 {string} error
 // @Security JWT
-// @Router /api/v1/films/name [get]
+// @Router /api/v1/films/name [post]
 func (fr *filmRoutes) getFilmsByName(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		http.Error(w, "incorrect http method", http.StatusBadRequest)
+		return
+	}
+
 	role := req.Header.Get(userRoleHeader)
 	if role != "admin" && role != "user" {
 		fr.log.Error("filmRoutes GetFilmsByName: user does not have the necessary rights")
@@ -92,17 +104,14 @@ func (fr *filmRoutes) getFilmsByName(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	type input struct {
-		part string `json:"name_part"`
-	}
-	var name input
-	if err := json.NewDecoder(req.Body).Decode(&name); err != nil {
+	var input entity.NamePart
+	if err := json.NewDecoder(req.Body).Decode(&input); err != nil {
 		fr.log.Errorf("filmRoutes GetFilmsByName: invalid request body %v", err)
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	films, err := fr.filmService.GetFilmsByName(context.Background(), name.part)
+	films, err := fr.filmService.GetFilmsByName(context.Background(), input.Name)
 	if err != nil {
 		fr.log.Errorf("filmRoutes GetFilmsByName: filmService.GetFilmsByName %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -127,14 +136,20 @@ func (fr *filmRoutes) getFilmsByName(w http.ResponseWriter, req *http.Request) {
 // @Summary Get films by actor name
 // @Description Get films by part of actor name
 // @Tags films
+// @Param input body entity.NamePart true "information about actor name"
 // @Accept json
 // @Produce json
 // @Success 200 {object} v1.filmRoutes.getFilmsByActor.response
 // @Failure 400 {string} error
 // @Failure 500 {string} error
 // @Security JWT
-// @Router /api/v1/films/actor [get]
+// @Router /api/v1/films/actor [post]
 func (fr *filmRoutes) getFilmsByActor(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		http.Error(w, "incorrect http method", http.StatusBadRequest)
+		return
+	}
+
 	role := req.Header.Get(userRoleHeader)
 	if role != "admin" && role != "user" {
 		fr.log.Error("filmRoutes GetFilmsByActor: user does not have the necessary rights")
@@ -142,17 +157,14 @@ func (fr *filmRoutes) getFilmsByActor(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
-	type input struct {
-		part string `json:"name_part"`
-	}
-	var name input
-	if err := json.NewDecoder(req.Body).Decode(&name); err != nil {
+	var input entity.NamePart
+	if err := json.NewDecoder(req.Body).Decode(&input); err != nil {
 		fr.log.Errorf("filmRoutes GetFilmsByActor: invalid request body %v", err)
 		http.Error(w, "invalid request body", http.StatusBadRequest)
 		return
 	}
 
-	films, err := fr.filmService.GetFilmsByActor(context.Background(), name.part)
+	films, err := fr.filmService.GetFilmsByActor(context.Background(), input.Name)
 	if err != nil {
 		fr.log.Errorf("filmRoutes GetFilmsByActor: filmService.GetFilmsByActor %v", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -176,15 +188,20 @@ func (fr *filmRoutes) getFilmsByActor(w http.ResponseWriter, req *http.Request) 
 
 // @Summary Delete film
 // @Description Delete film
-// @Tags actors
-// @Param id path int true "Film id"
+// @Tags films
+// @Param id path integer true "Film id"
 // @Success 200
 // @Failure 400 {string} error
 // @Failure 404 {string} error
 // @Failure 500 {string} error
 // @Security JWT
-// @Router /api/v1/films/delete [delete]
+// @Router /api/v1/films/delete/{id} [delete]
 func (fr *filmRoutes) deleteFilm(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "DELETE" {
+		http.Error(w, "incorrect http method", http.StatusBadRequest)
+		return
+	}
+
 	role := req.Header.Get(userRoleHeader)
 	if role != "admin" {
 		fr.log.Error("filmRoutes DeleteFilm: user does not have the necessary rights")
@@ -192,12 +209,13 @@ func (fr *filmRoutes) deleteFilm(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	id, err := strconv.Atoi(req.URL.Query().Get("id"))
+	id, err := strconv.Atoi(req.PathValue("id"))
 	if err != nil {
 		fr.log.Errorf("filmRoutes DeleteFilm: cannot get film id %v", err)
 		http.Error(w, "cannot get film id", http.StatusBadRequest)
 		return
 	}
+	fr.log.Println(id)
 
 	err = fr.filmService.DeleteFilm(context.Background(), id)
 	if err != nil {

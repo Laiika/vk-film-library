@@ -1,0 +1,408 @@
+basePath: /
+definitions:
+  entity.Actor:
+    properties:
+      birthday:
+        type: string
+      films:
+        items:
+          type: string
+        type: array
+      gender:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  entity.ActorCreateInput:
+    properties:
+      birthday:
+        type: string
+      gender:
+        type: string
+      name:
+        type: string
+    type: object
+  entity.FilmCreateInput:
+    properties:
+      actors:
+        items:
+          type: string
+        type: array
+      created_at:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      rating:
+        type: integer
+    type: object
+  entity.NamePart:
+    properties:
+      name:
+        type: string
+    type: object
+  v1.actorRoutes:
+    type: object
+  v1.authRoutes:
+    type: object
+  v1.filmRoutes:
+    type: object
+  v1.signInput:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: evgeniazavojskih@gmail.com
+    name: Zavoiskih Evgenia
+  description: This is a service for viewing information about films and actors.
+  title: Film Service
+  version: "1.0"
+paths:
+  /admin/signup:
+    post:
+      consumes:
+      - application/json
+      description: Sign up for admin
+      parameters:
+      - description: input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.signInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v1.authRoutes'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Sign up for admin
+      tags:
+      - auth
+  /api/v1/actors:
+    get:
+      description: Get all actors
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.actorRoutes'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Get all actors
+      tags:
+      - actors
+  /api/v1/actors/create:
+    post:
+      consumes:
+      - application/json
+      description: Create actor
+      parameters:
+      - description: information about stored actor
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.ActorCreateInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v1.actorRoutes'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Create actor
+      tags:
+      - actors
+  /api/v1/actors/delete/{id}:
+    delete:
+      description: Delete actor
+      parameters:
+      - description: Actor id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Delete actor
+      tags:
+      - actors
+  /api/v1/actors/edit:
+    put:
+      consumes:
+      - application/json
+      description: Edit actor
+      parameters:
+      - description: information about actor
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.Actor'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Edit actor
+      tags:
+      - actors
+  /api/v1/films/actor:
+    post:
+      consumes:
+      - application/json
+      description: Get films by part of actor name
+      parameters:
+      - description: information about actor name
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.NamePart'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.filmRoutes'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Get films by actor name
+      tags:
+      - films
+  /api/v1/films/create:
+    post:
+      consumes:
+      - application/json
+      description: Create film
+      parameters:
+      - description: information about stored film
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.FilmCreateInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v1.filmRoutes'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Create film
+      tags:
+      - films
+  /api/v1/films/delete/{id}:
+    delete:
+      description: Delete film
+      parameters:
+      - description: Film id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Delete film
+      tags:
+      - films
+  /api/v1/films/name:
+    post:
+      consumes:
+      - application/json
+      description: Get films by part of name
+      parameters:
+      - description: information about film name
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.NamePart'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.filmRoutes'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Get films by name
+      tags:
+      - films
+  /signin:
+    post:
+      consumes:
+      - application/json
+      description: Sign in
+      parameters:
+      - description: input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.signInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.authRoutes'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Sign in
+      tags:
+      - auth
+  /signup:
+    post:
+      consumes:
+      - application/json
+      description: Sign up for user
+      parameters:
+      - description: input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/v1.signInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/v1.authRoutes'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Sign up for user
+      tags:
+      - auth
+securityDefinitions:
+  JWT:
+    description: JWT token
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

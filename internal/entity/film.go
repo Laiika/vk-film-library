@@ -21,6 +21,10 @@ type FilmCreateInput struct {
 	Actors      []string `json:"actors"`
 }
 
+type NamePart struct {
+	Name string `json:"name" db:"name"`
+}
+
 func (form *FilmCreateInput) Validate() error {
 	if len(form.Name) < 1 || len(form.Name) > 150 {
 		return fmt.Errorf("film name is invalid")

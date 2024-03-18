@@ -1,11 +1,11 @@
 http_server:
-  host: localhost
+  host: 0.0.0.0
   port: 8080
 
 postgres:
   username: zhenya_z
   password: postgres
-  host: localhost
+  host: db
   port: 5432
   dbname: postgres
 

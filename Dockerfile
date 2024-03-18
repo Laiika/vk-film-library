@@ -7,6 +7,7 @@ FROM golang:alpine as builder
 COPY --from=modules /go/pkg /go/pkg
 COPY . /app
 WORKDIR /app
+RUN go get -u github.com/swaggo/swag/cmd/swag
 RUN CGO_ENABLED=0 GOOS=linux \
     go build -o /bin/app ./cmd/app
 

@@ -56,9 +56,9 @@ func (r *FilmRepo) getActorIdByName(ctx context.Context, name string) (int, erro
 }
 
 func (r *FilmRepo) GetFilmsByName(ctx context.Context, namePart string) ([]*entity.Film, error) {
-	query := `SELECT id, name, description, created_at, rating FROM films WHERE name LIKE %$1%`
+	query := `SELECT id, name, description, created_at, rating FROM films WHERE name LIKE '%` + namePart + `%'`
 
-	rows, err := r.client.Query(ctx, query, namePart)
+	rows, err := r.client.Query(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("FilmRepo GetFilmsByName: %v", err)
 	}
@@ -107,9 +107,10 @@ func (r *FilmRepo) GetFilmsByName(ctx context.Context, namePart string) ([]*enti
 }
 
 func (r *FilmRepo) GetFilmsByActor(ctx context.Context, namePart string) ([]*entity.Film, error) {
-	query := `SELECT fa.film_id FROM films_actors fa JOIN actors ac ON ac.id = fa.actor_id WHERE ac.name LIKE %$1%`
+	query := `SELECT fa.film_id FROM films_actors fa JOIN actors ac ON ac.id = fa.actor_id WHERE ac.name LIKE '%` +
+		namePart + `%'`
 
-	rows, err := r.client.Query(ctx, query, namePart)
+	rows, err := r.client.Query(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("FilmRepo GetFilmsByActor: %v", err)
 	}

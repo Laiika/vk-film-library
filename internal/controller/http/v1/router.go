@@ -8,9 +8,7 @@ import (
 )
 
 func NewRouter(mux *http.ServeMux, services *service.Services, log *logger.Logger) {
-	mux.HandleFunc("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
-	))
+	mux.HandleFunc("/swagger/", httpSwagger.Handler())
 
 	newAuthRoutes(mux, services.Auth, log)
 	authMiddleware := &AuthMiddleware{services.Auth, log}

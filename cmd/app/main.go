@@ -9,6 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 	"vk-film-library/config"
+	_ "vk-film-library/docs"
 	v1 "vk-film-library/internal/controller/http/v1"
 	"vk-film-library/internal/httpserver"
 	"vk-film-library/internal/repo"
@@ -58,7 +59,7 @@ func main() {
 	mux := http.NewServeMux()
 	v1.NewRouter(mux, services, log)
 	log.Info("starting http server")
-	log.Debug("server port: %s", cfg.HTTPServer.Port)
+	log.Debug("server port: ", cfg.HTTPServer.Port)
 	address := fmt.Sprintf("%s:%s", cfg.HTTPServer.Host, cfg.HTTPServer.Port)
 	httpServer := httpserver.New(mux, address)
 	go func() {

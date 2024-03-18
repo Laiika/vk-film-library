@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	userRoleHeader = "userRole"
+	userRoleHeader = "role"
 )
 
 type AuthMiddleware struct {
@@ -32,7 +32,8 @@ func (m *AuthMiddleware) RequireAuth(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		w.Header().Set(userRoleHeader, userRole)
+		req.Header.Add(userRoleHeader, userRole)
+		w.Header().Add(userRoleHeader, userRole)
 		next.ServeHTTP(w, req)
 	})
 }

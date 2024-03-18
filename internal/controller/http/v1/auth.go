@@ -41,6 +41,11 @@ type signInput struct {
 // @Failure 500 {string} error
 // @Router /signup [post]
 func (ar *authRoutes) signUpUser(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		http.Error(w, "incorrect http method", http.StatusBadRequest)
+		return
+	}
+
 	var input signInput
 	if err := json.NewDecoder(req.Body).Decode(&input); err != nil {
 		ar.log.Errorf("authRoutes signUpUser: invalid request body %v", err)
@@ -89,6 +94,11 @@ func (ar *authRoutes) signUpUser(w http.ResponseWriter, req *http.Request) {
 // @Failure 500 {string} error
 // @Router /admin/signup [post]
 func (ar *authRoutes) signUpAdmin(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		http.Error(w, "incorrect http method", http.StatusBadRequest)
+		return
+	}
+
 	var input signInput
 	if err := json.NewDecoder(req.Body).Decode(&input); err != nil {
 		ar.log.Errorf("authRoutes signUpAdmin: invalid request body %v", err)
@@ -137,6 +147,11 @@ func (ar *authRoutes) signUpAdmin(w http.ResponseWriter, req *http.Request) {
 // @Failure 500 {string} error
 // @Router /signin [post]
 func (ar *authRoutes) signIn(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		http.Error(w, "incorrect http method", http.StatusBadRequest)
+		return
+	}
+
 	var input signInput
 	if err := json.NewDecoder(req.Body).Decode(&input); err != nil {
 		ar.log.Errorf("authRoutes signUpIn: invalid request body %v", err)

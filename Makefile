@@ -14,9 +14,6 @@ cover:
 	go tool cover -func=coverage.out
 	rm coverage.out
 
-mockgen:
-	mockgen -source=internal/service/service.go -destination=internal/mocks/servicemocks/service.go -package=servicemocks
-	mockgen -source=internal/repo/repo.go       -destination=internal/mocks/repomocks/repo.go       -package=repomocks
 
 swag:
-	swag init -g cmd/app/main.go --parseInternal --parseDependency
+	swag init -g cmd/app/main.go
