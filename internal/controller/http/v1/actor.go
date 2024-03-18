@@ -21,13 +21,23 @@ func newActorRoutes(mux *http.ServeMux, actorService service.Actor, middleware *
 		log:          log,
 	}
 
-	mux.HandleFunc("/api/v1/actors/create", middleware.RequireAuth(ar.CreateActor))
-	mux.HandleFunc("/api/v1/actors", middleware.RequireAuth(ar.GetAllActors))
-	mux.HandleFunc("/api/v1/actors/edit", middleware.RequireAuth(ar.EditActor))
-	mux.HandleFunc("/api/v1/actors/delete", middleware.RequireAuth(ar.DeleteActor))
+	mux.HandleFunc("/api/v1/actors/create", middleware.RequireAuth(ar.createActor))
+	mux.HandleFunc("/api/v1/actors", middleware.RequireAuth(ar.getAllActors))
+	mux.HandleFunc("/api/v1/actors/edit", middleware.RequireAuth(ar.editActor))
+	mux.HandleFunc("/api/v1/actors/delete", middleware.RequireAuth(ar.deleteActor))
 }
 
-func (ar *actorRoutes) CreateActor(w http.ResponseWriter, req *http.Request) {
+// @Summary Create actor
+// @Description Create actor
+// @Tags actors
+// @Accept json
+// @Produce json
+// @Success 201 {object} v1.actorRoutes.createActor.response
+// @Failure 400 {string} error
+// @Failure 500 {string} error
+// @Security JWT
+// @Router /api/v1/actors/create [post]
+func (ar *actorRoutes) createActor(w http.ResponseWriter, req *http.Request) {
 	role := req.Header.Get(userRoleHeader)
 	if role != "admin" {
 		ar.log.Error("actorRoutes CreateActor: user does not have the necessary rights")
@@ -54,6 +64,7 @@ func (ar *actorRoutes) CreateActor(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
 	jsonResp, err := json.Marshal(response{Id: id})
 	if err != nil {
 		ar.log.Errorf("actorRoutes CreateActor: cannot marshal response %v", err)
@@ -63,7 +74,16 @@ func (ar *actorRoutes) CreateActor(w http.ResponseWriter, req *http.Request) {
 	w.Write(jsonResp)
 }
 
-func (ar *actorRoutes) GetAllActors(w http.ResponseWriter, req *http.Request) {
+// @Summary Get all actors
+// @Description Get all actors
+// @Tags actors
+// @Produce json
+// @Success 200 {object} v1.actorRoutes.getAllActors.response
+// @Failure 400 {string} error
+// @Failure 500 {string} error
+// @Security JWT
+// @Router /api/v1/actors [get]
+func (ar *actorRoutes) getAllActors(w http.ResponseWriter, req *http.Request) {
 	role := req.Header.Get(userRoleHeader)
 	if role != "admin" && role != "user" {
 		ar.log.Error("actorRoutes GetAllActors: user does not have the necessary rights")
@@ -78,8 +98,13 @@ func (ar *actorRoutes) GetAllActors(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	type response struct {
+		Actors []*entity.Actor `json:"actors"`
+	}
+
 	w.WriteHeader(http.StatusOK)
-	jsonResp, err := json.Marshal(actors)
+	w.Header().Set("Content-Type", "application/json")
+	jsonResp, err := json.Marshal(response{Actors: actors})
 	if err != nil {
 		ar.log.Errorf("actorRoutes GetAllActors: cannot marshal response %v", err)
 		http.Error(w, "cannot marshal response", http.StatusInternalServerError)
@@ -88,7 +113,18 @@ func (ar *actorRoutes) GetAllActors(w http.ResponseWriter, req *http.Request) {
 	w.Write(jsonResp)
 }
 
-func (ar *actorRoutes) EditActor(w http.ResponseWriter, req *http.Request) {
+// @Summary Edit actor
+// @Description Edit actor
+// @Tags actors
+// @Param id path int true "Actor id"
+// @Accept json
+// @Success 200
+// @Failure 400 {string} error
+// @Failure 404 {string} error
+// @Failure 500 {string} error
+// @Security JWT
+// @Router /api/v1/actors/edit [put]
+func (ar *actorRoutes) editActor(w http.ResponseWriter, req *http.Request) {
 	role := req.Header.Get(userRoleHeader)
 	if role != "admin" {
 		ar.log.Error("actorRoutes EditActor: user does not have the necessary rights")
@@ -124,7 +160,17 @@ func (ar *actorRoutes) EditActor(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
-func (ar *actorRoutes) DeleteActor(w http.ResponseWriter, req *http.Request) {
+// @Summary Delete actor
+// @Description Delete actor
+// @Tags actors
+// @Param id path int true "Actor id"
+// @Success 200
+// @Failure 400 {string} error
+// @Failure 404 {string} error
+// @Failure 500 {string} error
+// @Security JWT
+// @Router /api/v1/actors/delete [delete]
+func (ar *actorRoutes) deleteActor(w http.ResponseWriter, req *http.Request) {
 	role := req.Header.Get(userRoleHeader)
 	if role != "admin" {
 		ar.log.Error("actorRoutes DeleteActor: user does not have the necessary rights")

@@ -20,9 +20,9 @@ func newAuthRoutes(mux *http.ServeMux, authService service.Auth, log *logger.Log
 		log:         log,
 	}
 
-	mux.HandleFunc("/sign-in", ar.signIn)
-	mux.HandleFunc("/sign-up", ar.signUpUser)
-	mux.HandleFunc("/admin/sign-up", ar.signUpAdmin)
+	mux.HandleFunc("/signin", ar.signIn)
+	mux.HandleFunc("/signup", ar.signUpUser)
+	mux.HandleFunc("/admin/signup", ar.signUpAdmin)
 }
 
 type signInput struct {
@@ -30,6 +30,16 @@ type signInput struct {
 	Password string `json:"password" validate:"required,password"`
 }
 
+// @Summary Sign up for user
+// @Description Sign up for user
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body signInput true "input"
+// @Success 201 {object} v1.authRoutes.signUpUser.response
+// @Failure 400 {string} error
+// @Failure 500 {string} error
+// @Router /signup [post]
 func (ar *authRoutes) signUpUser(w http.ResponseWriter, req *http.Request) {
 	var input signInput
 	if err := json.NewDecoder(req.Body).Decode(&input); err != nil {
@@ -58,6 +68,7 @@ func (ar *authRoutes) signUpUser(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
 	jsonResp, err := json.Marshal(response{Id: id})
 	if err != nil {
 		ar.log.Errorf("authRoutes signUpUser: cannot marshal response %v", err)
@@ -67,6 +78,16 @@ func (ar *authRoutes) signUpUser(w http.ResponseWriter, req *http.Request) {
 	w.Write(jsonResp)
 }
 
+// @Summary Sign up for admin
+// @Description Sign up for admin
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body signInput true "input"
+// @Success 201 {object} v1.authRoutes.signUpAdmin.response
+// @Failure 400 {string} error
+// @Failure 500 {string} error
+// @Router /admin/signup [post]
 func (ar *authRoutes) signUpAdmin(w http.ResponseWriter, req *http.Request) {
 	var input signInput
 	if err := json.NewDecoder(req.Body).Decode(&input); err != nil {
@@ -95,6 +116,7 @@ func (ar *authRoutes) signUpAdmin(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
 	jsonResp, err := json.Marshal(response{Id: id})
 	if err != nil {
 		ar.log.Errorf("authRoutes signUpAdmin: cannot marshal response %v", err)
@@ -104,6 +126,16 @@ func (ar *authRoutes) signUpAdmin(w http.ResponseWriter, req *http.Request) {
 	w.Write(jsonResp)
 }
 
+// @Summary Sign in
+// @Description Sign in
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param input body signInput true "input"
+// @Success 200 {object} v1.authRoutes.signIn.response
+// @Failure 400 {string} error
+// @Failure 500 {string} error
+// @Router /signin [post]
 func (ar *authRoutes) signIn(w http.ResponseWriter, req *http.Request) {
 	var input signInput
 	if err := json.NewDecoder(req.Body).Decode(&input); err != nil {
@@ -131,6 +163,7 @@ func (ar *authRoutes) signIn(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
 	jsonResp, err := json.Marshal(response{Token: token})
 	if err != nil {
 		ar.log.Errorf("authRoutes signIn: cannot marshal response %v", err)

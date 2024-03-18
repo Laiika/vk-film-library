@@ -21,13 +21,23 @@ func newFilmRoutes(mux *http.ServeMux, filmService service.Film, middleware *Aut
 		log:         log,
 	}
 
-	mux.HandleFunc("/api/v1/films/create", middleware.RequireAuth(ar.CreateFilm))
-	mux.HandleFunc("/api/v1/films/name", middleware.RequireAuth(ar.GetFilmsByName))
-	mux.HandleFunc("/api/v1/films/actor", middleware.RequireAuth(ar.GetFilmsByActor))
-	mux.HandleFunc("/api/v1/films/delete", middleware.RequireAuth(ar.DeleteFilm))
+	mux.HandleFunc("/api/v1/films/create", middleware.RequireAuth(ar.createFilm))
+	mux.HandleFunc("/api/v1/films/name", middleware.RequireAuth(ar.getFilmsByName))
+	mux.HandleFunc("/api/v1/films/actor", middleware.RequireAuth(ar.getFilmsByActor))
+	mux.HandleFunc("/api/v1/films/delete", middleware.RequireAuth(ar.deleteFilm))
 }
 
-func (fr *filmRoutes) CreateFilm(w http.ResponseWriter, req *http.Request) {
+// @Summary Create film
+// @Description Create film
+// @Tags films
+// @Accept json
+// @Produce json
+// @Success 201 {object} v1.filmRoutes.createFilm.response
+// @Failure 400 {string} error
+// @Failure 500 {string} error
+// @Security JWT
+// @Router /api/v1/films/create [post]
+func (fr *filmRoutes) createFilm(w http.ResponseWriter, req *http.Request) {
 	role := req.Header.Get(userRoleHeader)
 	if role != "admin" {
 		fr.log.Error("filmRoutes CreateFilm: user does not have the necessary rights")
@@ -54,6 +64,7 @@ func (fr *filmRoutes) CreateFilm(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	w.Header().Set("Content-Type", "application/json")
 	jsonResp, err := json.Marshal(response{Id: id})
 	if err != nil {
 		fr.log.Errorf("filmRoutes CreateFilm: cannot marshal response %v", err)
@@ -63,7 +74,17 @@ func (fr *filmRoutes) CreateFilm(w http.ResponseWriter, req *http.Request) {
 	w.Write(jsonResp)
 }
 
-func (fr *filmRoutes) GetFilmsByName(w http.ResponseWriter, req *http.Request) {
+// @Summary Get films by name
+// @Description Get films by part of name
+// @Tags films
+// @Accept json
+// @Produce json
+// @Success 200 {object} v1.filmRoutes.getFilmsByName.response
+// @Failure 400 {string} error
+// @Failure 500 {string} error
+// @Security JWT
+// @Router /api/v1/films/name [get]
+func (fr *filmRoutes) getFilmsByName(w http.ResponseWriter, req *http.Request) {
 	role := req.Header.Get(userRoleHeader)
 	if role != "admin" && role != "user" {
 		fr.log.Error("filmRoutes GetFilmsByName: user does not have the necessary rights")
@@ -88,8 +109,13 @@ func (fr *filmRoutes) GetFilmsByName(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	type response struct {
+		Films []*entity.Film `json:"films"`
+	}
+
 	w.WriteHeader(http.StatusOK)
-	jsonResp, err := json.Marshal(films)
+	w.Header().Set("Content-Type", "application/json")
+	jsonResp, err := json.Marshal(response{Films: films})
 	if err != nil {
 		fr.log.Errorf("filmRoutes GetFilmsByName: cannot marshal response %v", err)
 		http.Error(w, "cannot marshal response", http.StatusInternalServerError)
@@ -98,7 +124,17 @@ func (fr *filmRoutes) GetFilmsByName(w http.ResponseWriter, req *http.Request) {
 	w.Write(jsonResp)
 }
 
-func (fr *filmRoutes) GetFilmsByActor(w http.ResponseWriter, req *http.Request) {
+// @Summary Get films by actor name
+// @Description Get films by part of actor name
+// @Tags films
+// @Accept json
+// @Produce json
+// @Success 200 {object} v1.filmRoutes.getFilmsByActor.response
+// @Failure 400 {string} error
+// @Failure 500 {string} error
+// @Security JWT
+// @Router /api/v1/films/actor [get]
+func (fr *filmRoutes) getFilmsByActor(w http.ResponseWriter, req *http.Request) {
 	role := req.Header.Get(userRoleHeader)
 	if role != "admin" && role != "user" {
 		fr.log.Error("filmRoutes GetFilmsByActor: user does not have the necessary rights")
@@ -123,8 +159,13 @@ func (fr *filmRoutes) GetFilmsByActor(w http.ResponseWriter, req *http.Request) 
 		return
 	}
 
+	type response struct {
+		Films []*entity.Film `json:"films"`
+	}
+
 	w.WriteHeader(http.StatusOK)
-	jsonResp, err := json.Marshal(films)
+	w.Header().Set("Content-Type", "application/json")
+	jsonResp, err := json.Marshal(response{Films: films})
 	if err != nil {
 		fr.log.Errorf("filmRoutes GetFilmsByActor: cannot marshal response %v", err)
 		http.Error(w, "cannot marshal response", http.StatusInternalServerError)
@@ -133,7 +174,17 @@ func (fr *filmRoutes) GetFilmsByActor(w http.ResponseWriter, req *http.Request) 
 	w.Write(jsonResp)
 }
 
-func (fr *filmRoutes) DeleteFilm(w http.ResponseWriter, req *http.Request) {
+// @Summary Delete film
+// @Description Delete film
+// @Tags actors
+// @Param id path int true "Film id"
+// @Success 200
+// @Failure 400 {string} error
+// @Failure 404 {string} error
+// @Failure 500 {string} error
+// @Security JWT
+// @Router /api/v1/films/delete [delete]
+func (fr *filmRoutes) deleteFilm(w http.ResponseWriter, req *http.Request) {
 	role := req.Header.Get(userRoleHeader)
 	if role != "admin" {
 		fr.log.Error("filmRoutes DeleteFilm: user does not have the necessary rights")
