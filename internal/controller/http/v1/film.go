@@ -22,6 +22,7 @@ func newFilmRoutes(mux *http.ServeMux, filmService service.Film, middleware *Aut
 	}
 
 	mux.HandleFunc("/api/v1/films/create", middleware.RequireAuth(ar.createFilm))
+	mux.HandleFunc("/api/v1/films/sorted", middleware.RequireAuth(ar.getSortFilms))
 	mux.HandleFunc("/api/v1/films/name", middleware.RequireAuth(ar.getFilmsByName))
 	mux.HandleFunc("/api/v1/films/actor", middleware.RequireAuth(ar.getFilmsByActor))
 	mux.HandleFunc("/api/v1/films/delete/{id}", middleware.RequireAuth(ar.deleteFilm))
@@ -74,6 +75,59 @@ func (fr *filmRoutes) createFilm(w http.ResponseWriter, req *http.Request) {
 	jsonResp, err := json.Marshal(response{Id: id})
 	if err != nil {
 		fr.log.Errorf("filmRoutes CreateFilm: cannot marshal response %v", err)
+		http.Error(w, "cannot marshal response", http.StatusInternalServerError)
+		return
+	}
+	w.Write(jsonResp)
+}
+
+// @Summary Get sort films
+// @Description Get sort films by field
+// @Tags films
+// @Param input body entity.NamePart true "information about sort field"
+// @Accept json
+// @Produce json
+// @Success 200 {object} v1.filmRoutes.getSortFilms.response
+// @Failure 400 {string} error
+// @Failure 500 {string} error
+// @Security JWT
+// @Router /api/v1/films/sorted [post]
+func (fr *filmRoutes) getSortFilms(w http.ResponseWriter, req *http.Request) {
+	if req.Method != "POST" {
+		http.Error(w, "incorrect http method", http.StatusBadRequest)
+		return
+	}
+
+	role := req.Header.Get(userRoleHeader)
+	if role != "admin" && role != "user" {
+		fr.log.Error("filmRoutes getSortFilms: user does not have the necessary rights")
+		http.Error(w, "you do not have the necessary rights", http.StatusBadRequest)
+		return
+	}
+
+	var input entity.NamePart
+	if err := json.NewDecoder(req.Body).Decode(&input); err != nil {
+		fr.log.Errorf("filmRoutes getSortFilms: invalid request body %v", err)
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	films, err := fr.filmService.GetSortFilms(context.Background(), input.Name)
+	if err != nil {
+		fr.log.Errorf("filmRoutes getSortFilms: filmService.GetFilmsByName %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	type response struct {
+		Films []*entity.Film `json:"films"`
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	jsonResp, err := json.Marshal(response{Films: films})
+	if err != nil {
+		fr.log.Errorf("filmRoutes getSortFilms: cannot marshal response %v", err)
 		http.Error(w, "cannot marshal response", http.StatusInternalServerError)
 		return
 	}

@@ -34,6 +34,10 @@ func (f *FilmService) CreateFilm(ctx context.Context, input *entity.FilmCreateIn
 	return f.repo.CreateFilm(ctx, film)
 }
 
+func (f *FilmService) GetSortFilms(ctx context.Context, sort string) ([]*entity.Film, error) {
+	return f.repo.GetSortFilms(ctx, sort)
+}
+
 func (f *FilmService) GetFilmsByName(ctx context.Context, namePart string) ([]*entity.Film, error) {
 	return f.repo.GetFilmsByName(ctx, namePart)
 }

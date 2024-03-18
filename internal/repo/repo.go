@@ -21,7 +21,7 @@ type ActorRepo interface {
 
 type FilmRepo interface {
 	CreateFilm(ctx context.Context, film *entity.Film) (int, error)
-	//GetAllFilms(ctx context.Context, sortField string) ([]*entity.Film, error)
+	GetSortFilms(ctx context.Context, sort string) ([]*entity.Film, error)
 	GetFilmsByName(ctx context.Context, namePart string) ([]*entity.Film, error)
 	GetFilmsByActor(ctx context.Context, namePart string) ([]*entity.Film, error)
 	//EditFilmByName(ctx context.Context, film *entity.Film) error

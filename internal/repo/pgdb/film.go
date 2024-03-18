@@ -55,6 +55,67 @@ func (r *FilmRepo) getActorIdByName(ctx context.Context, name string) (int, erro
 	return id, nil
 }
 
+func (r *FilmRepo) GetSortFilms(ctx context.Context, sort string) ([]*entity.Film, error) {
+	var query string
+	switch sort {
+	case "rating":
+		query = `SELECT id, name, description, created_at, rating FROM films ORDER BY rating`
+	case "name":
+		query = `SELECT id, name, description, created_at, rating FROM films ORDER BY name`
+	case "created_at":
+		query = `SELECT id, name, description, created_at, rating FROM films ORDER BY created_at`
+	default:
+		return nil, fmt.Errorf("FilmRepo GetFilmsByName: invalid sort field")
+	}
+
+	rows, err := r.client.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("FilmRepo GetFilmsByName: %v", err)
+	}
+
+	films := make([]*entity.Film, 0)
+	for rows.Next() {
+		var f entity.Film
+
+		err = rows.Scan(&f.Id, &f.Name, &f.Description, &f.CreatedAt, &f.Rating)
+		if err != nil {
+			return nil, fmt.Errorf("FilmRepo GetFilmsByName: %v", err)
+		}
+
+		films = append(films, &f)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("FilmRepo GetFilmsByName: %v", err)
+	}
+
+	for _, f := range films {
+		query = `SELECT name FROM actors ac JOIN films_actors fa ON fa.actor_id = ac.id WHERE fa.film_id=$1`
+		rows, err = r.client.Query(ctx, query, f.Id)
+		if err != nil {
+			return nil, fmt.Errorf("FilmRepo GetFilmsByName: %v", err)
+		}
+
+		actors := make([]string, 0)
+		for rows.Next() {
+			var ac string
+
+			err = rows.Scan(&ac)
+			if err != nil {
+				return nil, fmt.Errorf("FilmRepo GetFilmsByName: %v", err)
+			}
+
+			actors = append(actors, ac)
+		}
+		if err = rows.Err(); err != nil {
+			return nil, fmt.Errorf("FilmRepo GetFilmsByName: %v", err)
+		}
+
+		f.Actors = actors
+	}
+
+	return films, nil
+}
+
 func (r *FilmRepo) GetFilmsByName(ctx context.Context, namePart string) ([]*entity.Film, error) {
 	query := `SELECT id, name, description, created_at, rating FROM films WHERE name LIKE '%` + namePart + `%'`
 

@@ -339,6 +339,38 @@ paths:
       summary: Get films by name
       tags:
       - films
+  /api/v1/films/sorted:
+    post:
+      consumes:
+      - application/json
+      description: Get sort films by field
+      parameters:
+      - description: information about sort field
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/entity.NamePart'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/v1.filmRoutes'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      security:
+      - JWT: []
+      summary: Get sort films
+      tags:
+      - films
   /signin:
     post:
       consumes:

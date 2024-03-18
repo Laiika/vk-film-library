@@ -22,6 +22,7 @@ type Actor interface {
 
 type Film interface {
 	CreateFilm(ctx context.Context, input *entity.FilmCreateInput) (int, error)
+	GetSortFilms(ctx context.Context, sort string) ([]*entity.Film, error)
 	GetFilmsByName(ctx context.Context, namePart string) ([]*entity.Film, error)
 	GetFilmsByActor(ctx context.Context, namePart string) ([]*entity.Film, error)
 	DeleteFilm(ctx context.Context, id int) error
