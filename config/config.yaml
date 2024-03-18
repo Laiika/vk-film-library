@@ -1,2 +1,14 @@
+http_server:
+  host: localhost
+  port: 8080
+
+postgres:
+  username: zhenya_z
+  password: postgres
+  host: localhost
+  port: 5432
+  dbname: postgres
+
 jwt:
   token_ttl: 120m
+  sign_key: my-32-character-ultra-secure-and-ultra-long-secret

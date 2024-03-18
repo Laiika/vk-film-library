@@ -38,7 +38,7 @@ func GetConfig(logger *logger.Logger) *Config {
 	once.Do(func() {
 		logger.Info("read application configuration")
 		instance = &Config{}
-		if err := cleanenv.ReadConfig("./", instance); err != nil {
+		if err := cleanenv.ReadConfig("./config/config.yaml", instance); err != nil {
 			help, _ := cleanenv.GetDescription(instance, nil)
 			logger.Info(help)
 			logger.Fatal(err)

@@ -2,24 +2,23 @@ package entity
 
 import (
 	"fmt"
-	"time"
 )
 
 type Film struct {
-	Id          int       `db:"id"`
-	Name        string    `json:"name" db:"name"`
-	Description string    `json:"description" db:"description"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	Rating      int       `json:"rating" db:"rating"`
+	Id          int    `db:"id"`
+	Name        string `json:"name" db:"name"`
+	Description string `json:"description" db:"description"`
+	CreatedAt   string `json:"created_at" db:"created_at"`
+	Rating      int    `json:"rating" db:"rating"`
 	Actors      []string
 }
 
 type FilmCreateInput struct {
-	Name        string    `json:"name" db:"name"`
-	Description string    `json:"description" db:"description"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	Rating      int       `json:"rating" db:"rating"`
-	Actors      []string  `json:"actors"`
+	Name        string   `json:"name" db:"name"`
+	Description string   `json:"description" db:"description"`
+	CreatedAt   string   `json:"created_at" db:"created_at"`
+	Rating      int      `json:"rating" db:"rating"`
+	Actors      []string `json:"actors"`
 }
 
 func (form *FilmCreateInput) Validate() error {

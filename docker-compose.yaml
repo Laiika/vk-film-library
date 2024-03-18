@@ -1,0 +1,27 @@
+version: "3.8"
+
+services:
+
+  postgres:
+    container_name: postgres-vk
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=zhenya_z
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/db.sql
+
+  app:
+    container_name: app-vk
+    build: .
+    volumes:
+      - ./logs:/logs
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    restart: unless-stopped

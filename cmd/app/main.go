@@ -17,6 +17,20 @@ import (
 	"vk-film-library/pkg/postgres"
 )
 
+// @title           Film Service
+// @version         1.0
+// @description     This is a service for viewing information about films and actors.
+
+// @contact.name   Zavoiskih Evgenia
+// @contact.email  evgeniazavojskih@gmail.com
+
+// @host      localhost:8080
+// @BasePath  /
+
+// @securityDefinitions.apikey  JWT
+// @in                          header
+// @name                        Authorization
+// @description					JWT token
 func main() {
 	log := logger.GetLogger()
 	cfg := config.GetConfig(log)
